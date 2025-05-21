@@ -9,5 +9,4 @@ public class SharekitApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(SharekitApplication.class, args);
 	}
-
 }
