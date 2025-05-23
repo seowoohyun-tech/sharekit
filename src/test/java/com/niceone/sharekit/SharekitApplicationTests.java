@@ -1,4 +1,4 @@
-package com.N1.sharekit;
+package com.niceone.sharekit;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
