@@ -1,4 +1,4 @@
-package com.N1.sharekit.domain;
+package com.niceone.sharekit.domain;
 
 import jakarta.persistence.*;
 import lombok.Builder;

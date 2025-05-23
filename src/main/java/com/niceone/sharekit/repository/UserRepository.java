@@ -1,6 +1,6 @@
-package com.N1.sharekit.repository;
+package com.niceone.sharekit.repository;
 
-import com.N1.sharekit.domain.User;
+import com.niceone.sharekit.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
