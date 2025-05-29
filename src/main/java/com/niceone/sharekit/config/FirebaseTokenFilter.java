@@ -3,7 +3,7 @@ package com.niceone.sharekit.config;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.niceone.sharekit.service.FirebaseService;
-import com.niceone.sharekit.domain.user.User;
+import com.niceone.sharekit.domain.User;
 import com.niceone.sharekit.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
