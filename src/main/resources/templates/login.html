@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | SHARE-KIT</title>
+    <link rel="stylesheet" href="/css/login.css"> </head>
+<body>
+    
+
+<main>
+    <div id="login-header">
+        <h2>로그인</h2>
+       
+    <form id="loginForm"> <div>
+        <label for="studentId"></label>
+        <input type="text" id="studentId" name="studentId" placeholder="학번을 입력하세요" required />
+    </div>
+        <div>
+            <label for="password"></label>
+            <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required />
+        </div>
+        <button type="button" id="loginSubmitBtn">로그인</button>
+    </form>
+    <p id="loginErrorMessage" style="color: red; display: none;"></p> <p>아직 회원이 아니신가요? <a href="/signup">이메일 인증 후 회원가입</a></p>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const loginForm = document.getElementById('loginForm');
+        const loginSubmitBtn = document.getElementById('loginSubmitBtn');
+        const studentIdInput = document.getElementById('studentId');
+        const passwordInput = document.getElementById('password');
+        const errorMessageElement = document.getElementById('loginErrorMessage');
+
+        if (loginSubmitBtn) {
+            loginSubmitBtn.addEventListener('click', async (event) => {
+                event.preventDefault();
+
+                const studentId = studentIdInput.value;
+                const password = passwordInput.value;
+
+                if (!studentId.trim() || !password.trim()) {
+                    errorMessageElement.textContent = '학번과 비밀번호를 모두 입력해주세요.';
+                    errorMessageElement.style.display = 'block';
+                    return;
+                }
+                errorMessageElement.style.display = 'none';
+
+                try {
+                    const response = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            studentId: studentId,
+                            password: password
+                        })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('Login successful:', data);
+
+                        if (data.accessToken) {
+                            localStorage.setItem('accessToken', data.accessToken);
+                        }
+
+                        alert('로그인 성공! 환영합니다, ' + (data.user && data.user.name ? data.user.name : '사용자') + '님!');
+                        window.location.href = '/equipment-list';
+                    } else {
+                        let errorMsg = '학번 또는 비밀번호가 올바르지 않습니다.';
+                        try {
+                            const errorData = await response.json();
+                            if (errorData && errorData.message) {
+                                errorMsg = errorData.message;
+                            }
+                        } catch (e) {
+                            const errorText = await response.text();
+                            if (errorText) {
+                                errorMsg = errorText;
+                            }
+                            console.error('Error parsing error response or no JSON error message:', e, errorText);
+                        }
+                        errorMessageElement.textContent = errorMsg + ' (오류 코드: ' + response.status + ')';
+                        errorMessageElement.style.display = 'block';
+                        console.error('Login failed:', response.status, errorMsg);
+                    }
+                } catch (error) {
+                    console.error('로그인 요청 중 네트워크 오류 또는 예외 발생:', error);
+                    errorMessageElement.textContent = '로그인 요청 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+                    errorMessageElement.style.display = 'block';
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>
