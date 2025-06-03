@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup | SHARE-KIT</title>
+    <link rel="stylesheet" href="/css/signup.css">
+</head>
+<body>
+<header>
+    <div id="signup-logo">
+        <h1>SHARE - KIT</h1>
+        <span>회원가입</span>
+    </div>
+</header>
+<main>
+    <button id="google-signup-btn">Google 계정으로 회원가입</button>
+    <script type="module">
+    import { auth, getCurrentUserFirebaseIdToken } from "/js/firebase-auth.js";
+    import { signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+
+    const provider = new GoogleAuthProvider();
+
+        const googleSignupBtn = document.getElementById("google-signup-btn");
+        if (googleSignupBtn) {
+            googleSignupBtn.addEventListener("click", async () => {
+                try {
+                    const result = await signInWithPopup(auth, provider);
+                    const user = result.user;
+                    const idToken = await user.getIdToken();
+
+                    const backendResponse = await fetch('/api/auth/signup', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ idToken: idToken })
+                    });
+
+                    if (backendResponse.ok) {
+                        const message = await backendResponse.text();
+                        alert(message);
+                        window.location.href = "/profile";
+                    } else {
+                        const errorText = await backendResponse.text();
+                        let detailMessage = errorText;
+                        try {
+                            const errorJson = JSON.parse(errorText);
+                            detailMessage = errorJson.message || errorJson.error || errorText;
+                        } catch(e) {}
+                        alert('백엔드 회원가입 처리 실패: ' + detailMessage);
+                        if (backendResponse.status === 409) { // 이미 가입된 사용자
+                            // window.location.href = "/login";
+                        }
+                    }
+                } catch (error) {
+                    console.error("Google 회원가입 중 오류:", error);
+                    alert("Google 계정으로 회원가입 중 오류가 발생했습니다.");
+                }
+            });
+        }
+    </script>
+</main>
+</body>
+</html>
