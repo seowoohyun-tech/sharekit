@@ -2,7 +2,7 @@ package com.niceone.sharekit.controller;
 
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
-import com.niceone.sharekit.domain.User;
+import com.niceone.sharekit.domain.user.User;
 import com.niceone.sharekit.dto.LocalLoginRequest;
 import com.niceone.sharekit.dto.SignupRequest;
 import com.niceone.sharekit.dto.UserResponse;

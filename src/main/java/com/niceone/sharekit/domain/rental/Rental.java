@@ -1,6 +1,6 @@
 package com.niceone.sharekit.domain.rental;
 
-import com.niceone.sharekit.domain.User; // User 엔티티의 실제 패키지 경로로 수정해주세요.
+import com.niceone.sharekit.domain.user.User; // User 엔티티의 실제 패키지 경로로 수정해주세요.
 import com.niceone.sharekit.domain.equipment.Equipment; // 우리가 정의한 단일 Equipment 엔티티
 import jakarta.persistence.*;
 import lombok.Getter;

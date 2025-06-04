@@ -1,6 +1,6 @@
 package com.niceone.sharekit.config;
 
-import com.niceone.sharekit.domain.User;
+import com.niceone.sharekit.domain.user.User;
 import com.niceone.sharekit.service.JwtTokenProvider;
 import com.niceone.sharekit.service.UserService;
 import io.jsonwebtoken.ExpiredJwtException;

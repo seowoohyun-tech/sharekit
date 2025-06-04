@@ -1,6 +1,6 @@
 package com.niceone.sharekit.service;
 
-import com.niceone.sharekit.domain.User;
+import com.niceone.sharekit.domain.user.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;

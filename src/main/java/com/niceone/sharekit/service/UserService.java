@@ -1,6 +1,6 @@
 package com.niceone.sharekit.service;
 
-import com.niceone.sharekit.domain.User;
+import com.niceone.sharekit.domain.user.User;
 import com.niceone.sharekit.dto.UserProfileRequest;
 import com.niceone.sharekit.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
