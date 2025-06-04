@@ -1,6 +1,6 @@
 package com.niceone.sharekit.dto;
 
-import com.niceone.sharekit.domain.User;
+import com.niceone.sharekit.domain.user.User;
 import lombok.Getter;
 
 @Getter
