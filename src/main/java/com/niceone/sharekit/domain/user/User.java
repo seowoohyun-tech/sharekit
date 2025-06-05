@@ -1,11 +1,16 @@
 package com.niceone.sharekit.domain.user;
 
-import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
+import java.util.HashSet;
+import java.util.Set;
+import jakarta.persistence.*;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 
 @Getter
 @Setter
@@ -30,16 +35,20 @@ public class User {
     @Column(name = "password")
     private String password;
 
-    @Column(name = "role")
-    private String role; // 관리자 권한 세부 구현하기
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles", // 중간 테이블
+            joinColumns = @JoinColumn(name = "user_uid"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
 
     @Builder
-    public User(String uid, String email, String name, String studentId, String password, String role) {
+    public User(String uid, String email, String name, String studentId, String password) {
         this.uid = uid;
         this.email = email;
         this.name = name;
         this.studentId = studentId;
         this.password = password;
-        this.role = (role == null) ? "ROLE_PRE_AUTH_USER" : role;
     }
 }
