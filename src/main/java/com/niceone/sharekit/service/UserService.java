@@ -36,8 +36,14 @@ public class UserService {
 
     @Transactional
     public void registerNewUser(User user) {
-        // TODO: 여기에 "ROLE_PRE_AUTH_USER" 역할 할당 로직 추가 예정
+        Role preAuthUserRole = roleRepository.findByName("ROLE_PRE_AUTH_USER")
+                .orElseThrow(() -> {
+                    log.error("'ROLE_PRE_AUTH_USER' not found in database. Check DataInitializer.");
+                    return new IllegalStateException("'ROLE_PRE_AUTH_USER' not found. This is a server configuration issue.");
+                });
+        user.getRoles().add(preAuthUserRole);
         userRepository.save(user);
+        log.info("New user registered with UID: {} and granted ROLE_PRE_AUTH_USER", user.getUid());
     }
 
     @Transactional
