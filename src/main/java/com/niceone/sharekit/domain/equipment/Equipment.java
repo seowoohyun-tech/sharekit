@@ -1,8 +1,8 @@
 package com.niceone.sharekit.domain.equipment;
 
+import com.niceone.sharekit.domain.rental.Rental;
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
@@ -17,7 +17,6 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-
 public class Equipment {
 
     @Id
@@ -25,31 +24,41 @@ public class Equipment {
     private Long id;
 
     @Column(nullable = false, unique = true, length = 50)
-    private String itemIdentifier;
+    private String itemIdentifier; // 개별 장비 식별자
+
+    @Column(nullable = false, length = 150)
+    private String name; // 장비의 구체적인 이름 또는 모델명
 
     @Column(nullable = false, length = 100)
-    private String typeName; 
+    private String typeName; // 장비의 종류/분류
 
     @Column(length = 255)
-    private String imageUrl; 
+    private String imageUrl; // 이미지 URL
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
-    private EquipmentStatus status; 
+    private EquipmentStatus status; // 장비 상태
+
+    @Column(length = 200)
+    private String rentalLocation; // 대여 가능 장소
+
+    @Column(length = 255) // << "대여 가능 시간 정보" 필드 추가!
+    private String availableTimeInfo; // 예: "평일 09:00-18:00", "상시 가능"
+
+    @Column(length = 1000)
+    private String description; // 장비에 대한 상세 설명
 
     @Column(length = 500)
-    private String additionalInfo; 
+    private String additionalInfo; // 기타 추가 정보
 
-
-    // Rental 엔티티와의 1:N 관계: 하나의 장비는 여러 대여 기록을 가질 수 있음
-    // 'mappedBy = "equipment"'는 Rental 엔티티 내에 있는 'equipment' 필드에 의해 관계가 관리됨.
     @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private List<Rental> rentals = new ArrayList<>();
 
     public void addRental(Rental rental) {
-    this.rentals.add(rental); // 현재 Equipment의 rentals 목록에 rental 추가
-    if (rental.getEquipment() != this) { // 무한루프 방지 및 중복 호출 방지 로직
-        rental.setEquipment(this);
-    }   
+        this.rentals.add(rental);
+        if (rental.getEquipment() != this) {
+            rental.setEquipment(this);
+        }
+    }
 }
