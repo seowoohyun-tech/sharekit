@@ -59,9 +59,29 @@ public class UserService {
         if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
-        // TODO: 여기에 "ROLE_USER" 역할 할당 및 "ROLE_PRE_AUTH_USER" 역할 제거 로직 추가 예정
+
+        Role userRole = roleRepository.findByName("ROLE_USER")
+                .orElseThrow(() -> {
+                    log.error("'ROLE_USER' not found in database. Check DataInitializer.");
+                    return new IllegalStateException("'ROLE_USER' not found. This is a server configuration issue.");
+                });
+        user.getRoles().add(userRole);
+        log.info("Role 'ROLE_USER' added to user UID: {}", uid);
+
+        Optional<Role> preAuthUserRoleOptional = roleRepository.findByName("ROLE_PRE_AUTH_USER");
+        if (preAuthUserRoleOptional.isPresent()) {
+            if (user.getRoles().contains(preAuthUserRoleOptional.get())) {
+                user.getRoles().remove(preAuthUserRoleOptional.get());
+                log.info("Role 'ROLE_PRE_AUTH_USER' removed from user UID: {}", uid);
+            } else {
+                log.info("User UID: {} did not have 'ROLE_PRE_AUTH_USER' to remove.", uid);
+            }
+        } else {
+            log.warn("'ROLE_PRE_AUTH_USER' not found in database for removal. Check DataInitializer.");
+        }
+
         userRepository.save(user);
-        log.info("User UID: {} profile updated. Role update logic needs to be revised for Set<Role>.", uid);
+        log.info("User UID: {} profile updated. profile updated successfully. Roles adjusted.", uid);
 
     }
 
