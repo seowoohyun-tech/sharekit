@@ -31,6 +31,9 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT e FROM Equipment e WHERE e.itemIdentifier = :itemIdentifier")
     Optional<Equipment> findByItemIdentifierForUpdate(@Param("itemIdentifier") String itemIdentifier);
+    
+    //itemIdentifier 자동 생성
+    Optional<Equipment> findTopByItemIdentifierStartsWithOrderByItemIdentifierDesc(String prefix);
 
 }
 
