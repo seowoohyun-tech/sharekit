@@ -61,4 +61,17 @@ public class Equipment {
             rental.setEquipment(this);
         }
     }
+
+    public void markAsAvailable() {
+    this.status = EquipmentStatus.AVAILABLE;
+    }
+
+    public void markAsRented() {
+    this.status = EquipmentStatus.RENTED;
+    }
+
+    public boolean isAvailable() {
+    return this.status == EquipmentStatus.AVAILABLE;
+    }
+
 }
