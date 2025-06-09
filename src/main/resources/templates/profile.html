@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | SHARE-KIT</title>
+    <link rel="stylesheet" href="/css/profile.css">
+    <script type="module">
+        import { getCurrentUserFirebaseIdToken } from '/js/firebase-auth.js';
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const submitProfileBtn = document.getElementById("submitProfileBtn");
+            if (submitProfileBtn) {
+                submitProfileBtn.addEventListener("click", async function() {
+                    const name = document.getElementById("name").value;
+                    const studentId = document.getElementById("studentId").value;
+                    const password = document.getElementById("password").value;
+
+                    if (!name || !studentId || !password) {
+                        alert("이름, 학번, 비밀번호를 모두 입력해주세요.");
+                        return;
+                    }
+
+                    const firebaseIdToken = await getCurrentUserFirebaseIdToken();
+
+                    if (!firebaseIdToken) {
+                        alert("Firebase 인증 정보를 가져올 수 없습니다. 다시 로그인하거나 회원가입을 진행해주세요.");
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch('/api/users/me/profile', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': 'Bearer ' + firebaseIdToken
+                            },
+                            body: JSON.stringify({ name, studentId, password })
+                        });
+
+                        if (response.ok) {
+                            const message = await response.text();
+                            alert(message || "프로필 정보가 성공적으로 업데이트되었습니다.");
+                            window.location.href = '/login';
+                        } else {
+                            const errorText = await response.text();
+                            let detailMessage = errorText;
+                            try {
+                                const errorJson = JSON.parse(errorText);
+                                detailMessage = errorJson.message || errorJson.error || errorText;
+                            } catch (e) {}
+                            alert('프로필 업데이트 실패: ' + detailMessage + ' (상태 코드: ' + response.status + ')');
+                        }
+                    } catch (error) {
+                        console.error('프로필 업데이트 중 네트워크 오류 또는 예외 발생:', error);
+                        alert('프로필 업데이트 중 오류가 발생했습니다. 콘솔을 확인해주세요.');
+                    }
+                });
+            }
+        });
+    </script>
+</head>
+<body>
+
+<main>
+    <div id="profile">
+        <h1>회원정보 입력</h1>
+    </div>
+    <form id="profileForm">
+        <input type="text" id="name" name="name" placeholder="이름을 입력하세요" required />
+        <input type="text" id="studentId" name="studentId" placeholder="학번을 입력하세요" required />
+        <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required />
+        <button type="button" id="submitProfileBtn">정보 저장 및 계속</button>
+    </form>
+</main>
+</body>
+</html>
