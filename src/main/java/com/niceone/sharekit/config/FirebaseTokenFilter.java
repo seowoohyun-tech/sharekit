@@ -18,11 +18,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /// Firebase 토큰 검사 필터
 @RequiredArgsConstructor
@@ -51,20 +50,16 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
             FirebaseToken decodedToken = firebaseService.verifyToken(idToken);
             String uid = decodedToken.getUid();
 
-            // db에서 사용자 정보 조회
-            Optional<User> optionalUser = userService.findByUid(uid);
+            User user = userService.findByUid(uid)
+                    .orElseThrow(() -> new NoSuchElementException("User not found with UID: " + uid));
 
-            if (optionalUser.isPresent()) {
-                User user = optionalUser.get();
-                Collection<GrantedAuthority> authorities = new ArrayList<>();
-                if (user.getRole() != null && !user.getRole().isEmpty()) {
-                    authorities.add(new SimpleGrantedAuthority(user.getRole()));
-                } else {
-                    authorities.add(new SimpleGrantedAuthority("ROLE_PRE_AUTH_USER"));
-                }
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
+            Collection<? extends GrantedAuthority> authorities = user.getRoles().stream()
+                    .map(role -> new SimpleGrantedAuthority(role.getName()))
+                    .collect(Collectors.toList());
+
+            // 인증 객체 생성
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (FirebaseAuthException e) {
             SecurityContextHolder.clearContext();
@@ -78,7 +73,7 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
             return;
         } catch (Exception e) {
             SecurityContextHolder.clearContext();
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication error: " + e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Authentication error: " + e.getMessage());
             logger.severe("Authentication error: " + e.getMessage());
             return;
         }
