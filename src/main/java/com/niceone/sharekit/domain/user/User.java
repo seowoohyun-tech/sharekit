@@ -4,13 +4,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+// import java.util.ArrayList; > 사용되지 않아 주석 처리 하였음. 확인 요망
 import java.util.HashSet;
 import java.util.Set;
+
+import com.niceone.sharekit.domain.rental.Rental;
+
 import jakarta.persistence.*;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
 
 @Getter
 @Setter
@@ -50,5 +51,17 @@ public class User {
         this.name = name;
         this.studentId = studentId;
         this.password = password;
+    }
+
+    // rental 연관 관계 작성
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Rental> rentals = new HashSet<>();
+
+    public void addRental(Rental rental) {
+        this.rentals.add(rental);
+        if (rental.getUser() != this) {
+            rental.setUser(this);
+        }
     }
 }
