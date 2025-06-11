@@ -23,8 +23,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -58,14 +56,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         log.warn("JWT authentication attempt for user UID: {} who has not completed profile setup (studentId or password missing).", uid);
                     }
 
-                    Collection<? extends GrantedAuthority> authorities;
-                    if (user.getRole() != null && !user.getRole().isEmpty()) {
-                        authorities = Arrays.stream(user.getRole().split(","))
-                                .map(SimpleGrantedAuthority::new)
-                                .collect(Collectors.toList());
-                    } else {
-                        authorities = new ArrayList<>();
-                    }
+                    Collection<? extends GrantedAuthority> authorities = user.getRoles().stream()
+                            .map(role -> new SimpleGrantedAuthority(role.getName()))
+                            .collect(Collectors.toList());
 
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(user, null, authorities);
@@ -106,11 +99,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    /**
-     * HttpServletRequest 에서 Authorization 헤더를 가로채서 Bearer 토큰을 추출
-     * @param request HttpServletRequest 객체
-     * @return 추출된 JWT 문자열 또는 null
-     */
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
