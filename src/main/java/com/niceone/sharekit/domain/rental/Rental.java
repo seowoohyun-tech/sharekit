@@ -43,4 +43,34 @@ public class Rental {
     @Column(nullable = false, length = 30)
     private RentalStatus status; // 대여 상태 (Enum: RENTED, RETURNED, OVERDUE 등)
 
+    private String note;
+
+    @Builder
+    public Rental(User user, Equipment equipment, RentalStatus status, LocalDateTime rentalDate, LocalDateTime dueDate) {
+        this.user = user;
+        this.equipment = equipment;
+        this.status = status;
+        this.rentalDate = rentalDate;
+        this.dueDate = dueDate;
+    }
+
+    /**
+     * 대여 기록을 '반납 완료' 상태로 변경
+     * 관리자에 의한 일반 반납 및 예외적 상태 변경 시 호출
+     */
+    public void complete() {
+        if (this.status == RentalStatus.RENTED) {
+            this.status = RentalStatus.RETURNED;
+            this.returnDate = LocalDateTime.now();
+        }
+    }
+
+    /**
+     * '수리 보내기' 등 특정 사유와 함께 반납 처리할 때 사용되는 메서드 오버로딩
+     * @param reason 사유 (note 필드에 저장됩니다)
+     */
+    public void complete(String reason) {
+        this.complete(); // 기본 반납 처리 로직 호출
+        this.note = reason;
+    }
 }
