@@ -1,6 +1,8 @@
 package com.niceone.sharekit.domain.equipment;
 
 import com.niceone.sharekit.domain.rental.Rental;
+import com.niceone.sharekit.dto.equipment.EquipmentUpdateRequestDto;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Builder;
@@ -62,16 +64,51 @@ public class Equipment {
         }
     }
 
-    public void markAsAvailable() {
-    this.status = EquipmentStatus.AVAILABLE;
+    public boolean isAvailable() {
+        return this.status == EquipmentStatus.AVAILABLE;
     }
 
     public void markAsRented() {
-    this.status = EquipmentStatus.RENTED;
+        this.status = EquipmentStatus.RENTED;
     }
 
-    public boolean isAvailable() {
-    return this.status == EquipmentStatus.AVAILABLE;
+    public void markAsAvailable() {
+        this.status = EquipmentStatus.AVAILABLE;
     }
 
+    public void markAsInRepair() {
+        if (this.status == EquipmentStatus.RENTED) {
+            throw new IllegalStateException("대여 중인 장비는 수리 상태로 변경할 수 없습니다.");
+        }
+        this.status = EquipmentStatus.IN_REPAIR;
+    }
+
+    //DTO로부터 받은 정보로 장비의 상세 내용 업데이트 
+    public void update(EquipmentUpdateRequestDto requestDto) {
+        if (requestDto.getName() != null) {
+            this.name = requestDto.getName();
+        }
+        if (requestDto.getTypeName() != null) {
+            this.typeName = requestDto.getTypeName();
+        }
+        if (requestDto.getImageUrl() != null) {
+            this.imageUrl = requestDto.getImageUrl();
+        }
+        if (requestDto.getStatus() != null) {
+            this.status = requestDto.getStatus();
+        }
+        if (requestDto.getRentalLocation() != null) {
+            this.rentalLocation = requestDto.getRentalLocation();
+        }
+        if (requestDto.getAvailableTimeInfo() != null) {
+            this.availableTimeInfo = requestDto.getAvailableTimeInfo();
+        }
+        if (requestDto.getDescription() != null) {
+            this.description = requestDto.getDescription();
+        }
+        if (requestDto.getAdditionalInfo() != null) {
+            this.additionalInfo = requestDto.getAdditionalInfo();
+        }
+
+    }
 }
