@@ -1,0 +1,79 @@
+@font-face {
+    font-family: 'HUFS_B';
+    src: url('/fonts/HUFS_B.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'HUFS_L';
+    src: url('/fonts/HUFS_L.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    height: 100%;
+    font-family: 'HUFS_L';
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 헤더 로고 영역 */
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#signup-logo h1 {
+    font-family: 'HUFS_B';
+    font-size: 36px;
+    color: #002D56;
+    margin-bottom: 5px;
+}
+
+#signup-logo span {
+    font-family: 'HUFS_L';
+    font-size: 16px;
+    color: #555;
+}
+
+/* 메인 컨테이너 */
+main {
+    width: 100%;
+    max-width: 480px;
+    padding: 60px 30px 40px;
+    background-color: #fdfdfd;
+    border-radius: 14px;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 구글 회원가입 버튼 */
+#google-signup-btn {
+    width: 100%;
+    padding: 18px;
+    font-size: 18px;
+    font-family: 'HUFS_B';
+    background-color: #9D9FA2;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#google-signup-btn:hover {
+    background-color: #7c7e81;
+}
