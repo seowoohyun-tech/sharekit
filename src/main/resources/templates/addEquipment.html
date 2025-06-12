@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>장비 추가/수정</title>
+    <style>
+        /* 기본적인 CSS 스타일 */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background-color: #f4f7f6; color: #333; }
+        .container { max-width: 1000px; margin: 0 auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        h1, h2 { color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
+
+        /* 섹션 스타일 */
+        .section-group { margin-bottom: 30px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 6px; }
+
+        /* 폼 그룹 스타일 */
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: calc(100% - 22px); /* 패딩 고려 */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        /* 버튼 스타일 */
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s, opacity 0.2s;
+            margin-right: 10px;
+        }
+        .button:last-child { margin-right: 0; }
+        .button.primary { background-color: #007bff; color: white; }
+        .button.primary:hover { background-color: #0056b3; }
+        .button.secondary { background-color: #6c757d; color: white; }
+        .button.secondary:hover { background-color: #5a6268; }
+        .button.danger { background-color: #dc3545; color: white; }
+        .button.danger:hover { background-color: #c82333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>장비 추가/수정</h1>
+
+        <div class="section-group" id="equipment-form-section">
+            <form id="equipment-form">
+                <div class="form-group">
+                    <label for="equipment-name">장비명:</label>
+                    <input type="text" id="equipment-name" name="name" placeholder="예: 공학용 계산기 1번" required>
+                </div>
+                <div class="form-group">
+                    <label for="rental-location">대여 위치:</label>
+                    <input type="text" id="rental-location" name="rentalLocation" placeholder="예: 공학관 310호">
+                </div>
+                <div class="form-group">
+                    <label for="image-url">이미지 URL:</label>
+                    <input type="text" id="image-url" name="imageUrl" placeholder="장비 이미지 URL">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="button primary" id="save-update-button">저장</button>
+                    <button type="button" class="button secondary" id="cancel-equipment-form-button">취소</button>
+                    <button type="button" class="button danger" id="delete-equipment-form-button" style="display: none;">삭제</button>
+                    <button type="button" class="button secondary" id="go-to-list-button">목록으로 돌아가기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const BASE_URL = '/api'; 
+            const ADMIN_TOKEN = 'YOUR_ADMIN_JWT_TOKEN'; // **실제 토큰으로 대체하세요.**
+
+            const getAuthHeaders = () => ({
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${ADMIN_TOKEN}` 
+            });
+
+            // --- DOM 요소 캐싱 ---
+            const equipmentForm = document.getElementById('equipment-form');
+            const equipmentNameInput = document.getElementById('equipment-name');
+            // '종류' 필드 관련 DOM 요소 제거
+            const rentalLocationInput = document.getElementById('rental-location');
+            const imageUrlInput = document.getElementById('image-url');
+
+            const saveUpdateButton = document.getElementById('save-update-button');
+            const cancelEquipmentFormButton = document.getElementById('cancel-equipment-form-button');
+            const deleteEquipmentFormButton = document.getElementById('delete-equipment-form-button');
+            const goToListButton = document.getElementById('go-to-list-button');
+
+            // --- 상태 변수 ---
+            let editingEquipmentId = null; 
+
+            // --- API 호출 함수들 ---
+
+            const fetchEquipmentDetailAndPopulateForm = async (equipmentId) => {
+                try {
+                    const response = await fetch(`${BASE_URL}/equipments/${equipmentId}`);
+                    if (!response.ok) throw new Error('장비 상세 정보를 불러오는 데 실패했습니다.');
+                    const detail = await response.json();
+                    
+                    // 수정된 필드에 맞게 값 채우기
+                    equipmentNameInput.value = detail.name;
+                    // '종류' 필드가 제거되었으므로 관련 로직 제거
+                    rentalLocationInput.value = detail.rentalLocation || '';
+                    imageUrlInput.value = detail.imageUrl || '';
+
+                    // 나머지 제거된 필드 관련 로직 제거
+
+                    saveUpdateButton.textContent = '수정 완료';
+                    deleteEquipmentFormButton.style.display = 'inline-block';
+                    editingEquipmentId = equipmentId; 
+                    console.log(`장비 ${equipmentId} 수정 모드 진입`);
+                } catch (error) {
+                    console.error(`장비(${equipmentId}) 상세 정보 불러오기 오류:`, error);
+                    alert('장비 상세 정보를 불러오는 데 실패했습니다.');
+
+                }
+            };
+
+            const createEquipment = async (equipmentData) => {
+                try {
+                    const response = await fetch(`${BASE_URL}/admin/equipments`, {
+                        method: 'POST',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify(equipmentData)
+                    });
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`장비 생성 실패: ${errorText || response.statusText}`);
+                    }
+                    alert('새 장비가 저장되었습니다!');
+                    resetEquipmentForm();
+                    window.location.href = 'equipment-list.html'; // 목록 페이지로 이동
+                } catch (error) {
+                    console.error('장비 생성 오류:', error);
+                    alert(`장비 저장 실패: ${error.message}`);
+                }
+            };
+
+            const updateEquipment = async (equipmentId, equipmentData) => {
+                try {
+                    const response = await fetch(`${BASE_URL}/admin/equipments/${equipmentId}`, {
+                        method: 'PUT',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify(equipmentData)
+                    });
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`장비 수정 실패: ${errorText || response.statusText}`);
+                    }
+                    alert('장비 정보가 수정되었습니다!');
+                    resetEquipmentForm();
+                    window.location.href = 'equipment-list.html'; // 목록 페이지로 이동
+                } catch (error) {
+                    console.error(`장비(${equipmentId}) 수정 오류:`, error);
+                    alert(`장비 수정 실패: ${error.message}`);
+                }
+            };
+
+            const deleteEquipment = async (equipmentId) => {
+                if (!confirm(`장비 (ID: ${equipmentId})를 정말 삭제하시겠습니까?`)) {
+                    return;
+                }
+                try {
+                    const response = await fetch(`${BASE_URL}/admin/equipments/${equipmentId}`, {
+                        method: 'DELETE',
+                        headers: getAuthHeaders()
+                    });
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`장비 삭제 실패: ${errorText || response.statusText}`);
+                    }
+                    alert('장비가 삭제되었습니다!');
+                    window.location.href = 'equipment-list.html'; // 목록 페이지로 이동
+                } catch (error) {
+                    console.error(`장비(${equipmentId}) 삭제 오류:`, error);
+                    alert(`장비 삭제 실패: ${error.message}`);
+                }
+            };
+
+            // --- UI 렌더링 및 제어 함수들 ---
+            const resetEquipmentForm = () => {
+                equipmentForm.reset();
+                saveUpdateButton.textContent = '저장';
+                deleteEquipmentFormButton.style.display = 'none';
+                editingEquipmentId = null;
+                console.log("장비 폼이 초기화되었습니다.");
+            };
+
+            // --- 이벤트 리스너 등록 ---
+
+            // URL 파라미터 확인 (수정 모드 진입)
+            const urlParams = new URLSearchParams(window.location.search);
+            const editEquipmentId = urlParams.get('id');
+            
+            
+            // 폼 내 '취소' 버튼 클릭 시
+            cancelEquipmentFormButton.addEventListener('click', resetEquipmentForm);
+
+            // 폼 내 '삭제' 버튼 클릭 시 (수정 모드일 때만 보임)
+            deleteEquipmentFormButton.addEventListener('click', () => {
+                if (editingEquipmentId) {
+                    deleteEquipment(editingEquipmentId);
+                }
+            });
+
+            // '목록으로 돌아가기' 버튼 클릭 시
+            goToListButton.addEventListener('click', () => {
+                window.location.href = 'equipment-list.html';
+            });
+
+            // 장비 폼 제출 (저장 또는 수정 완료)
+            equipmentForm.addEventListener('submit', (event) => {
+                event.preventDefault(); 
+                const formData = new FormData(equipmentForm);
+                const data = Object.fromEntries(formData.entries());
+
+                const payload = {
+                    name: data.name,
+                    // '종류' 필드가 제거되었으므로 payload에서 제외
+                    // 백엔드 EquipmentCreateRequestDto에는 typeName이 여전히 필요할 수 있습니다.
+                    // 이 경우, 백엔드에서 기본값("기타" 또는 "미분류")을 설정하거나,
+                    // 이 폼에서 임의의 기본값을 보내도록 JavaScript를 수정해야 합니다.
+                    // 예: typeName: "기타",
+                    
+                    // '상태' 필드가 제거되었으므로 payload에서 제외
+                    // 백엔드에서 생성 시 기본 상태 (예: AVAILABLE)를 설정해야 합니다.
+                    rentalLocation: data.rentalLocation,
+                    // '이용 가능 시간', '설명', '추가 정보' 필드 제거
+                    imageUrl: data.imageUrl
+                };
+                
+                if (editingEquipmentId) { // 수정 모드
+                    updateEquipment(editingEquipmentId, payload);
+                } else { // 생성 모드
+                    createEquipment(payload);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
