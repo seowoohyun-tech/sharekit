@@ -38,3 +38,6 @@ out/
 
 ### firebase initialize key ###
 serviceAccountPath.json
+
+### Local Environment Configurations
+src/main/resources/application-local.properties
