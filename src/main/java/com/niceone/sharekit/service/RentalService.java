@@ -13,7 +13,9 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.niceone.sharekit.dto.admin.AdminRentalResponseDto;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 
 @Service
@@ -52,7 +54,7 @@ public class RentalService {
                 .dueDate(LocalDateTime.now().plusDays(RENTAL_PERIOD_DAYS))
                 .status(RentalStatus.RENTED)
                 .build();
-        
+
         user.addRental(rental);
 
         Rental savedRental = rentalRepository.save(rental);
@@ -66,7 +68,7 @@ public class RentalService {
     public RentalResponseDto returnRentalByAdmin(Long rentalId) {
         Rental rental = rentalRepository.findById(rentalId)
                 .orElseThrow(() -> new EntityNotFoundException("대여 기록을 찾을 수 없습니다. ID: " + rentalId));
-        
+
         if (rental.getStatus() != RentalStatus.RENTED) {
             throw new IllegalStateException("현재 '대여 중' 상태인 기록만 반납 처리할 수 있습니다.");
         }
@@ -79,7 +81,7 @@ public class RentalService {
 
         return new RentalResponseDto(rental);
     }
-    
+
     /**
      * 관리자: '수리 보내기' 등 예외적인 상태 변경 처리
      * @param rentalId 변경할 대여 기록의 ID
@@ -88,7 +90,7 @@ public class RentalService {
     public RentalResponseDto updateRentalStatusByAdmin(Long rentalId, AdminRentalUpdateRequestDto updateDto) {
         Rental rental = rentalRepository.findById(rentalId)
                 .orElseThrow(() -> new EntityNotFoundException("대여 기록을 찾을 수 없습니다. ID: " + rentalId));
-        
+
         if (rental.getStatus() != RentalStatus.RENTED) {
             throw new IllegalStateException("현재 '대여 중' 상태인 기록만 상태를 변경할 수 있습니다.");
         }
@@ -105,5 +107,20 @@ public class RentalService {
         }
 
         return new RentalResponseDto(rental);
+    }
+
+    /**
+     * 관리자: 현재 '대여 중'인 모든 대여 기록 조회
+     * @return 현재 대여 중인 장비 목록 (AdminRentalResponseDto 리스트)
+     */
+    @Transactional(readOnly = true)
+    public List<AdminRentalResponseDto> getActiveRentals() {
+        // 1. 'RENTED' 상태인 모든 Rental 엔티티를 데이터베이스에서 조회
+        List<Rental> activeRentals = rentalRepository.findByStatus(RentalStatus.RENTED);
+
+        // 2. 조회된 Rental 엔티티 리스트를 AdminRentalResponseDto 리스트로 변환
+        return activeRentals.stream()
+                .map(AdminRentalResponseDto::fromEntity)
+                .collect(Collectors.toList());
     }
 }

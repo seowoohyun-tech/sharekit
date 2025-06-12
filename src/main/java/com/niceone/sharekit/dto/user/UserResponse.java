@@ -1,4 +1,4 @@
-package com.niceone.sharekit.dto;
+package com.niceone.sharekit.dto.user;
 
 import com.niceone.sharekit.domain.user.User;
 import lombok.Getter;
