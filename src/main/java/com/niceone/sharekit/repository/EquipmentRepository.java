@@ -35,5 +35,10 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long> {
     //itemIdentifier 자동 생성
     Optional<Equipment> findTopByItemIdentifierStartsWithOrderByItemIdentifierDesc(String prefix);
 
+    //동시성 제어를 위한 비관적 쓰기 잠금(대여 시)
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT e FROM Equipment e WHERE e.id = :id")
+    Optional<Equipment> findByIdWithPessimisticLock(@Param("id") Long id);
+
 }
 
