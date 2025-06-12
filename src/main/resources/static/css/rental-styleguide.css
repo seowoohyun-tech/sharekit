@@ -1,0 +1,11 @@
+:root {
+    --ui-elementprimary: rgba(255, 255, 255, 1);
+    --brandsecondary: rgba(43, 30, 112, 1);
+    --ui-elementinactive: rgba(234, 234, 234, 1);
+    --UI-sub-content-bold-font-family: "SF Pro Display", Helvetica;
+    --UI-sub-content-bold-font-weight: 700;
+    --UI-sub-content-bold-font-size: 14px;
+    --UI-sub-content-bold-letter-spacing: 0px;
+    --UI-sub-content-bold-line-height: 139.9999976158142%;
+    --UI-sub-content-bold-font-style: normal;
+}
