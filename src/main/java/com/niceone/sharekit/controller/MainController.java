@@ -33,4 +33,20 @@ public class MainController {
     public String equipmentListPage() {
         return "equipment-list";
     }
+
+    @GetMapping("/addEquipment")
+    public String addEquipmentPage() {
+        return "addEquipment";
+    }
+
+    @GetMapping("/changeStatus")
+    public String changeStatusPage() {
+        return "changeStatus";
+    }
+
+    @GetMapping("/rental")
+    public String rentalPage() {
+        return "rental";
+    }
+
 }
