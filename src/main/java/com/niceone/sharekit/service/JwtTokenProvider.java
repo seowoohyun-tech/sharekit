@@ -70,10 +70,11 @@ public class JwtTokenProvider {
      * @return 생성된 JWT 문자열
      */
     public String generateToken(User user) {
-        String authorities = "";
-        if (user.getRole() != null && !user.getRole().isEmpty()) {
-            authorities = user.getRole();
-        }
+        // *** 여기가 핵심 변경 부분입니다 ***
+        // 사용자의 Set<Role>을 쉼표로 구분된 문자열로 변환합니다.
+        String authorities = user.getRoles().stream()
+                .map(role -> role.getName())
+                .collect(Collectors.joining(","));
 
         Date now = new Date();
         Date validity = new Date(now.getTime() + this.tokenValidityInMilliseconds);
@@ -87,7 +88,6 @@ public class JwtTokenProvider {
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
-
 
     /**
      * JWT 토큰에서 사용자 UID (Subject)를 추출합니다.
