@@ -2,7 +2,7 @@ package com.niceone.sharekit.service;
 
 import com.niceone.sharekit.domain.user.Role;
 import com.niceone.sharekit.domain.user.User;
-import com.niceone.sharekit.dto.UserProfileRequest;
+import com.niceone.sharekit.dto.user.UserProfileRequest;
 import com.niceone.sharekit.repository.RoleRepository;
 import com.niceone.sharekit.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
 import java.util.Optional;
-import java.util.Set;
 
 /// 사용자 중복 방지 및 정보 조회/저장
 @Slf4j
