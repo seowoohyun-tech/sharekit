@@ -84,12 +84,20 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const BASE_URL = '/api'; 
-            const ADMIN_TOKEN = 'YOUR_ADMIN_JWT_TOKEN'; // **실제 토큰으로 대체하세요.**
+            
 
-            const getAuthHeaders = () => ({
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${ADMIN_TOKEN}` 
-            });
+            if (token) {
+            document.cookie = `token=${token}; path=/; SameSite=Lax`;
+            }
+
+            const getAuthHeaders = () => {
+                const token = localStorage.getItem('accessToken');
+                return {
+                    'Content-Type': 'application/json',
+                    ...(token && { 'Authorization': `Bearer ${token}` })
+                };
+            };
+
 
             // --- DOM 요소 캐싱 ---
             const equipmentForm = document.getElementById('equipment-form');
