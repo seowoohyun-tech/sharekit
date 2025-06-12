@@ -21,6 +21,8 @@ public class EquipmentController {
      * 메인 페이지: 장비 종류별 요약 정보 조회
      */
     @GetMapping("/equipments/summary")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')") 
+
     public ResponseEntity<List<EquipmentTypeSummaryDto>> getEquipmentSummaries() {
         return ResponseEntity.ok(equipmentService.getEquipmentTypeSummaries());
     }
@@ -30,6 +32,7 @@ public class EquipmentController {
      * @param typeName 조회할 장비의 종류
      */
     @GetMapping("/equipments/type/{typeName}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')") 
     public ResponseEntity<List<EquipmentBriefDto>> getEquipmentsByType(@PathVariable String typeName) {
         return ResponseEntity.ok(equipmentService.getEquipmentListByType(typeName));
     }
@@ -39,6 +42,7 @@ public class EquipmentController {
      * @param equipmentId 조회할 장비의 ID
      */
     @GetMapping("/equipments/{equipmentId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<EquipmentDetailDto> getEquipmentDetail(@PathVariable Long equipmentId) {
         return ResponseEntity.ok(equipmentService.getEquipmentDetail(equipmentId));
     }
